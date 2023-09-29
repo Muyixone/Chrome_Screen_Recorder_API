@@ -35,7 +35,7 @@ function uniqueFileName(req, file, callback) {
 }
 
 const limits = {
-  fileSize: process.env.FILE_SIZE * 1024 * 1024, // 100MB
+  fileSize: 100 * 1024 * 1024, // 100MB
 };
 
 const videoStorage = multer.diskStorage({
