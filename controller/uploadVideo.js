@@ -7,7 +7,7 @@ const uploadVideo = (req, res) => {
   // remove the extension name from the fileId
   const fileId = path.parse(fileIdWithExtension).name;
 
-  const link = `http://${req.hostname}:${process.env.PORT}/video/${fileId}`;
+  const link = `http://${req.hostname}:${process.env.PORT}/video/${req.file.filename}`;
 
   res.json({
     success: true,
@@ -17,6 +17,7 @@ const uploadVideo = (req, res) => {
   const attributesToSave = {
     id: fileId,
     name: req.file.originalname,
+    url: link,
     size: req.file.size,
     path: req.file.path,
     encoding: req.file.encoding,
