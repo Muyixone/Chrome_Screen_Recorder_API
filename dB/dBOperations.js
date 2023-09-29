@@ -29,19 +29,23 @@ const readFromDb = () => {
   return parsedData;
 };
 
-const getFile = (fileId) => {
+const getFile = async (fileId) => {
   if (!fileId) {
     return null;
   }
-  let currentData = fs.readFileSync(fileName, 'utf8');
+  try {
+    let currentData = fs.readFileSync(fileName, 'utf8');
 
-  if (!currentData) {
-    currentData = '{}';
-  }
-  const parsedData = JSON.parse(currentData);
-  return parsedData[fileId];
+    if (!currentData) {
+      currentData = '{}';
+    }
+    const parsedData = JSON.parse(currentData);
+    return parsedData[fileId];
+  } catch (error) {}
 };
 
 module.exports = {
   saveToDb,
+  readFromDb,
+  getFile,
 };
