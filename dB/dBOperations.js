@@ -4,14 +4,15 @@ const fs = require('fs');
 const saveToDb = (data) => {
   let currentData = fs.readFileSync(fileName, 'utf8');
 
-  if (!currentData) {
-    currentData = '{}';
-  }
   //Parse current Data to an Object
-  const parsedData = JSON.parse(currentData);
+  let parsedData = JSON.parse(currentData);
+
+  if (parsedData.length < 1) {
+    parsedData = [];
+  }
 
   // Update data in the object
-  parsedData[data.id] = data;
+  parsedData.push(data);
 
   //convert the modified object back to JSON
   currentData = JSON.stringify(parsedData);
@@ -37,7 +38,7 @@ const getFile = async (fileId) => {
     let currentData = fs.readFileSync(fileName, 'utf8');
 
     if (!currentData) {
-      currentData = '{}';
+      currentData = [];
     }
     const parsedData = JSON.parse(currentData);
     return parsedData[fileId];
