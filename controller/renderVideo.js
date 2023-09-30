@@ -1,24 +1,17 @@
-const { getFile } = require('../dB/dBOperations');
+const { getAllFiles } = require('../dB/dBOperations');
 
-const renderVideo = async (req, res) => {
+const sendAllVideos = async (req, res) => {
   try {
-    const fileDetails = await getFile(req.params.id);
+    const fileDetails = await getAllFiles();
 
     if (!fileDetails) {
-      return res.json({
-        message: 'INVALID FILE ID',
-      });
+      return res.json({ message: [] });
     }
 
-    const storedFile = fileDetails;
-    return res.json({ storedFile });
-    //     const videoDetails = fileDetails.details || 'NA';
-    //     const videoName = fileDetails.name;
-
-    //     return res.json()
+    return res.json(fileDetails);
   } catch (error) {
     console.log(error);
   }
 };
 
-module.exports = renderVideo;
+module.exports = sendAllVideos;
