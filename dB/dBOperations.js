@@ -1,27 +1,31 @@
 const fileName = 'dB/dBFiles.json';
-const fs = require('fs');
+const fs = require('node:fs/promises');
 
-const saveToDb = (data) => {
-  let currentData = fs.readFileSync(fileName, 'utf8');
+const saveToDb = async (data) => {
+  try {
+    let currentData = await fs.readFile(fileName, { encoding: 'utf8' });
 
-  //Parse current Data to an Object
-  let parsedData = JSON.parse(currentData);
+    //Parse current Data to an Object
+    let parsedData = JSON.parse(currentData);
 
-  if (parsedData.length < 1) {
-    parsedData = [];
+    if (parsedData.length < 1) {
+      return [];
+    }
+
+    // Update data in the object
+    parsedData.push(data);
+
+    //convert the modified object back to JSON
+    currentData = JSON.stringify(parsedData);
+
+    await fs.writeFile(fileName, currentData, 'utf8');
+  } catch (error) {
+    throw error;
   }
-
-  // Update data in the object
-  parsedData.push(data);
-
-  //convert the modified object back to JSON
-  currentData = JSON.stringify(parsedData);
-
-  fs.writeFileSync(fileName, currentData, 'utf8');
 };
 
-const readFromDb = () => {
-  let currentData = fs.readFileSync(fileName, 'utf8');
+const readFromDb = async () => {
+  let currentData = await fs.readFile(fileName, { encoding: 'utf8' });
 
   if (!currentData) {
     currentData = '{}';
@@ -35,7 +39,7 @@ const getFile = async (fileId) => {
     return null;
   }
   try {
-    let currentData = fs.readFileSync(fileName, 'utf8');
+    let currentData = await fs.readFile(fileName, { encoding: 'utf8' });
 
     if (!currentData) {
       currentData = [];
@@ -45,8 +49,8 @@ const getFile = async (fileId) => {
   } catch (error) {}
 };
 
-const getAllFiles = () => {
-  let data = fs.readFileSync(fileName, 'utf8');
+const getAllFiles = async () => {
+  let data = await fs.readFile(fileName, { encoding: 'utf8' });
 
   if (!data) {
     return [];
