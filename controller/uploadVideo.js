@@ -1,7 +1,7 @@
 const path = require('path');
 const { saveToDb } = require('../dB/dBOperations');
 
-const uploadVideo = (req, res) => {
+const uploadVideo = async (req, res) => {
   const fileIdWithExtension = req.file.filename.split('_')[1];
 
   // remove the extension name from the fileId
@@ -9,22 +9,25 @@ const uploadVideo = (req, res) => {
 
   const link = `http://${req.hostname}:${process.env.PORT}/video/${req.file.filename}`;
 
-  res.json({
-    success: true,
-    link: link,
-  });
-
   const attributesToSave = {
     id: fileId,
     name: req.file.originalname,
     url: link,
     size: req.file.size,
-    path: req.file.path,
-    encoding: req.file.encoding,
     details: req.body.details ? req.body.details : '',
   };
 
-  return saveToDb(attributesToSave);
+  try {
+    await saveToDb(attributesToSave);
+    return res.json({
+      success: true,
+      url: link,
+    });
+  } catch (error) {
+    return res.statusCode(500).json({
+      message: error.message,
+    });
+  }
 };
 
 module.exports = uploadVideo;
