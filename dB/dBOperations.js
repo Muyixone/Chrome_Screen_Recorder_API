@@ -45,8 +45,19 @@ const getFile = async (fileId) => {
   } catch (error) {}
 };
 
+const getAllFiles = () => {
+  let data = fs.readFileSync(fileName, 'utf8');
+
+  if (!data) {
+    return [];
+  }
+  const parsedData = JSON.parse(data);
+  return parsedData;
+};
+
 module.exports = {
   saveToDb,
   readFromDb,
   getFile,
+  getAllFiles,
 };
