@@ -5,6 +5,6 @@ const renderVideo = require('./renderVideo');
 const router = express.Router();
 
 router.use('/', uploadVideo);
-router.use('/', renderVideo);
+router.use('/video', renderVideo);
 
 module.exports = router;
