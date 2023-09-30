@@ -1,10 +1,10 @@
 const express = require('express');
-const renderVideo = require('../controller/renderVideo');
+const sendAllVideos = require('../controller/renderVideo');
 const streamVideo = require('../controller/streamVideo');
 
 const router = express.Router();
 
-// router.get('/', renderVideo);
+router.get('/', sendAllVideos);
 router.get('/:videoName', streamVideo);
 
 module.exports = router;
