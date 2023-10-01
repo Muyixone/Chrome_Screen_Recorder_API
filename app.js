@@ -1,6 +1,7 @@
 const express = require('express');
 // const multer = require('multer');
 const path = require('path');
+const connectDb = require('./config/dbConfig');
 
 // const fileUploadConfig = require('./config/uploadFile');
 const routes = require('./routes/index');
@@ -21,6 +22,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', routes);
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+const start = async () => {
+  try {
+    await connectDb(process.env.MONGODB_URI);
+    app.listen(PORT, () => {
+      console.log('App is running');
+    });
+  } catch (error) {}
+};
+
+start();
