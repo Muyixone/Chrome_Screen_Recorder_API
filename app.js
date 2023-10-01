@@ -2,6 +2,7 @@ const express = require('express');
 // const multer = require('multer');
 const path = require('path');
 const connectDb = require('./config/dbConfig');
+const cors = require('cors');
 
 // const fileUploadConfig = require('./config/uploadFile');
 const routes = require('./routes/index');
@@ -18,6 +19,11 @@ const PORT = process.env.PORT;
 //   res.sendFile(path.join(__dirname + '/public/upload.html'));
 // });
 
+app.use(
+  cors({
+    origin: '*',
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', routes);
