@@ -1,5 +1,5 @@
-(async () => {
-  const fileType = await import('file-type');
+const fileType = (async () => {
+  await import('file-type');
   // Use fileMimeType here
 })();
 
