@@ -12,6 +12,7 @@ const chunksArray = [];
 const downloadVideo = async (req, res) => {
   const { videoId, blob } = req.body;
 
+  return console.log(...req.body);
   try {
     const data = await videoModel.findById({ _id: videoId });
 
@@ -41,7 +42,7 @@ const finalVideoChunk = async (req, res) => {
   //1. get the videoId, blob from the req.body
   //2. Check if the request body has the isComplete field set to true
   //3. If No, return an error message that this is the wrong route else, continue
-  const { videoId, blob, isComplete } = req.body;
+  const { videoId, blob } = req.body;
 
   try {
     const data = await videoModel.findById({ _id: videoId });
