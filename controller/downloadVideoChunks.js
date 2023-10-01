@@ -27,6 +27,7 @@ const downloadVideo = async (req, res) => {
 
     chunksArray.push(blob);
 
+    console.log('chunksArray:', chunksArray);
     return res.json({
       status: 200,
       message: 'Chunk saved',
@@ -52,6 +53,8 @@ const finalVideoChunk = async (req, res) => {
     chunksArray.push(blob);
 
     const combinedBuffer = Buffer.concat(chunksArray);
+
+    console.log('combinedBuff:', combinedBuffer);
 
     const video = new videoModel({
       ...req.body,
