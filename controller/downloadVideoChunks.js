@@ -3,9 +3,9 @@ const fileType = (async () => {
   // Use fileMimeType here
 })();
 
+const videoModel = require('../models/videoInfo');
 // const videoStoragePath = path.resolve(_dirname, '../', 'videos');
 // return console.log(videoStoragePath);
-const videoModel = require('../models/videoInfo');
 
 const chunksArray = [];
 
@@ -21,17 +21,17 @@ const downloadVideo = async (req, res) => {
 
     // Get the mimeType of the incoming blob
     const mimeType = fileType(blob);
-    if (mimeType !== data.mimeType) {
-      return console.log('File format not supported');
+    if (mimeType === 'video/webm') {
+      chunksArray.push(blob);
+
+      console.log('chunksArray:', chunksArray);
+      return res.json({
+        status: 200,
+        message: 'Chunk saved',
+      });
+    } else {
+      return console.log('Mime type error');
     }
-
-    chunksArray.push(blob);
-
-    console.log('chunksArray:', chunksArray);
-    return res.json({
-      status: 200,
-      message: 'Chunk saved',
-    });
   } catch (error) {
     console.log(error);
   }
