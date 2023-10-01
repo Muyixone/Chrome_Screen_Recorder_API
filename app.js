@@ -17,6 +17,8 @@ const PORT = process.env.PORT;
 //   res.sendFile(path.join(__dirname + '/public/upload.html'));
 // });
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/', routes);
 
 app.listen(PORT, () => {
