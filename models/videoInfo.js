@@ -7,8 +7,9 @@ const videoModel = new Schema({
   url: String,
   mimeType: String,
   transcription: String,
-  payload: String,
+  blob: Buffer,
   details: String,
+  isComplete: Boolean,
 });
 
 module.exports = mongoose.model('Video', videoModel);
