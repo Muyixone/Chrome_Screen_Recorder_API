@@ -7,7 +7,6 @@ const videoModel = new Schema({
   url: String,
   mimeType: String,
   transcription: String,
-  blob: Buffer,
   details: String,
   isComplete: Boolean,
 });
