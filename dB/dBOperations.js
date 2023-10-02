@@ -44,7 +44,7 @@ const getFileById = async (fileId) => {
   const file = fileDirectory.filter((item) => item === `${fileId}.json`);
 
   if (file.length < 0) {
-    throw new Error('File not found', 404);
+    return;
   }
 
   let fileToRead = await fs.readFile(`./dB/${file}`, { encoding: 'utf-8' });
@@ -59,58 +59,41 @@ const getFileById = async (fileId) => {
   }
 
   return extractedBuffArr;
-
-  // for (const item of currentData) {
-  //   if (item === `${fileId}.json`) {
-  //     let currentData = await fs.readFile(`./dB/${item}`, {
-  //       encoding: 'utf-8',
-  //     });
-
-  //     return console.log(JSON.parse(currentData));
-  //   }
-  // }
-  // return console.log('No file found');
 };
 
-const readFromDb = async (id) => {
-  let currentData = await fs.readFile(`./dB/${id}.json`, {
-    encoding: 'utf-8',
-  });
+const deleteFile = async (fileId) => {
+  let fileDirectory = await fs.readdir('./dB');
 
-  if (!currentData) {
-    currentData = '{}';
-  }
-  const parsedData = JSON.parse(currentData);
-  return parsedData;
-};
+  const file = fileDirectory.find((item) => item === `${fileId}.json`);
 
-const getFile = async (fileId) => {
-  if (!fileId) {
-    return null;
-  }
-  try {
-    let currentData = await fs.readFile(fileName, { encoding: 'utf8' });
-
-    if (!currentData) {
-      currentData = [];
-    }
-    const parsedData = JSON.parse(currentData);
-    return parsedData[fileId];
-  } catch (error) {
-    throw error;
+  if (file) {
+    fs.unlink(`./dB/${file}`, (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log('File delete successfully');
+    });
   }
 };
+// const getFile = async (fileId) => {
+//   if (!fileId) {
+//     return null;
+//   }
+//   try {
+//     let currentData = await fs.readFile(fileName, { encoding: 'utf8' });
 
-const getAllFiles = async () => {
-  // let data = await fs.readFile(fileName, { encoding: 'utf8' });
-  let data = await readFromDb();
-  return data;
-};
+//     if (!currentData) {
+//       currentData = [];
+//     }
+//     const parsedData = JSON.parse(currentData);
+//     return parsedData[fileId];
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 module.exports = {
   saveToDb,
-  readFromDb,
-  getFile,
-  getAllFiles,
   getFileById,
+  deleteFile,
 };
