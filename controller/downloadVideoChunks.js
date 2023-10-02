@@ -75,12 +75,11 @@ const finalVideoChunk = async (req, res) => {
         if (err) {
           return res.json({ message: err });
         } else {
-          const link = `http://${req.hostname}:${process.env.PORT}/video/${videoId}.webm`;
+          const link = `http://${req.hostname}:${process.env.PORT}/video/play/${videoId}.webm`;
 
           // update the url and blob fields in the mongoose model
           videoData.set({
             url: link,
-            // blob: videoBuffer,
           });
           await videoData.save();
 
