@@ -1,50 +1,75 @@
-const fileType = (async () => {
-  await import('file-type');
-  // Use fileMimeType here
-})();
-
+const mongoose = require('mongoose');
 const videoModel = require('../models/videoInfo');
+const fs = require('fs');
+const { saveToDb, getFileById } = require('../dB/dBOperations');
+
 // const videoStoragePath = path.resolve(_dirname, '../', 'videos');
 // return console.log(videoStoragePath);
 
 const chunksArray = [];
 
 const downloadVideo = async (req, res) => {
-  const { videoId, blob } = req.body;
+  const videoId = req.params.id;
+  const mimeType = req.headers['content-type'];
 
-  return console.log(...req.body);
-  try {
-    const data = await videoModel.findById({ _id: videoId });
-
-    if (!data) {
-      throw error;
-    }
-
-    // Get the mimeType of the incoming blob
-    const mimeType = fileType(blob);
-    if (mimeType === 'video/webm') {
-      chunksArray.push(blob);
-
-      console.log('chunksArray:', chunksArray);
-      return res.json({
-        status: 200,
-        message: 'Chunk saved',
-      });
-    } else {
-      return console.log('Mime type error');
-    }
-  } catch (error) {
-    console.log(error);
+  if (!mongoose.Types.ObjectId.isValid(videoId)) {
+    return console.log('Invalid Id');
   }
+
+  const video = videoModel.findById({ _id: videoId });
+  if (!video) {
+    return console.log('File not found');
+  }
+
+  await video.set({ mimeType });
+
+  const chunks = [];
+  req.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
+
+  req.on('end', async () => {
+    // Combine all received chunks into a single buffer
+    const dataBuffer = Buffer.concat(chunks);
+
+    await saveToDb(dataBuffer, videoId);
+  });
+  return;
 };
 
 const finalVideoChunk = async (req, res) => {
   //1. get the videoId, blob from the req.body
   //2. Check if the request body has the isComplete field set to true
   //3. If No, return an error message that this is the wrong route else, continue
-  const { videoId, blob } = req.body;
 
   try {
+    const videoId = req.params.id;
+    const mimeType = req.headers['content-type'];
+
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+      return console.log('Invalid Id');
+    }
+
+    const videoData = videoModel.findById({ _id: videoId });
+    if (!videoData) {
+      return console.log('File not found');
+    }
+
+    const chunks = [];
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    req.on('end', async () => {
+      // Combine all received chunks into a single buffer
+      const dataBuffer = Buffer.concat(chunks);
+
+      await saveToDb(dataBuffer, videoId);
+    });
+
+    await getFileById(videoId);
+
+    return;
     const data = await videoModel.findById({ _id: videoId });
 
     if (!data) {
@@ -71,7 +96,7 @@ const finalVideoChunk = async (req, res) => {
     // command.input(combinedBuffer);
 
     // Set output format and path.
-    // command.toFormat(data.mimeType).save();
+    // command.toFormat(data.mimeType).save(path);
   } catch (error) {}
 };
 

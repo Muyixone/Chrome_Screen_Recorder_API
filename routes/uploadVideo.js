@@ -15,7 +15,7 @@ const router = express.Router();
 // router.post('/save-video', upload.single('record'), uploadVideo);
 //videoUploda.start
 router.post('/start-record', startRecording);
-router.post('/video-chunks', downloadVideo);
-router.post('/final-upload,', finalVideoChunk);
+router.post('/video-chunks/:id', downloadVideo);
+router.post('/final-upload/:id', finalVideoChunk);
 
 module.exports = router;
