@@ -1,13 +1,10 @@
 const mongoose = require('mongoose');
-const ffmpeg = require('ffmpeg');
 const videoModel = require('../models/videoInfo');
 const fs = require('fs');
+const path = require('path');
 const { saveToDb, getFileById } = require('../dB/dBOperations');
 
-// const videoStoragePath = path.resolve(_dirname, '../', 'videos');
-// return console.log(videoStoragePath);
-
-const chunksArray = [];
+const videoStoragePath = path.resolve(__dirname, '../', 'videos');
 
 const downloadVideo = async (req, res) => {
   const videoId = req.params.id;
@@ -71,48 +68,28 @@ const finalVideoChunk = async (req, res) => {
       await saveToDb(dataBuffer, videoId);
     });
 
-    const conctBuffer = await getFileById(videoId);
-    const buffer = Buffer.concat(conctBuffer);
+    const binaryArray = await getFileById(videoId);
 
-    const command = await ffmpeg()
-      .input(buffer)
-      .output(videoData.mimeType)
-      .run();
+    //convert the binaryArray to a buffer
+    const videoBuffer = Buffer.from(binaryArray);
 
-    return fs.readFileSync('../videos');
-    // Set output format and path.
-    // command.toFormat(videoData.mimeType).save('../videos');
-
-    return res.json({
-      message: 'Video saved',
-    });
-    const data = await videoModel.findById({ _id: videoId });
-
-    if (!data) {
-      throw error;
+    if (Buffer.isBuffer(videoBuffer)) {
+      // The Buffer is converted back to a videofile and saved to the saver
+      fs.writeFile(`./videos/${videoId}.webm`, videoBuffer, (err) => {
+        if (err) {
+          console.error(`Error writing video file: ${err}`);
+        } else {
+          return res.json({
+            message: 'Video saved',
+            status: 200,
+          });
+        }
+      });
+    } else {
+      return res.json({
+        message: 'Buffer not valid',
+      });
     }
-
-    chunksArray.push(blob);
-
-    const combinedBuffer = Buffer.concat(chunksArray);
-
-    console.log('combinedBuff:', combinedBuffer);
-
-    const video = new videoModel({
-      ...req.body,
-      blob: combinedBuffer,
-    });
-
-    await video.save();
-
-    return console.log(video);
-    // const command = ffmpeg();
-
-    // Set input as buffer.
-    // command.input(combinedBuffer);
-
-    // Set output format and path.
-    // command.toFormat(data.mimeType).save(path);
   } catch (error) {}
 };
 
