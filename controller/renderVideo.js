@@ -1,17 +1,26 @@
-const { getAllFiles } = require('../dB/dBOperations');
+const mongoose = require('mongoose');
+const videoModel = require('../models/videoInfo');
 
-const sendAllVideos = async (req, res) => {
+const getVideo = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.json({
+      message: 'Not a valid mongoose Id',
+    });
+  }
   try {
-    const fileDetails = await getAllFiles();
-
-    if (!fileDetails) {
-      return res.json({ message: [] });
+    const video = await videoModel.findById({ _id: id });
+    if (!video) {
+      return console.log('File not found');
     }
-
-    return res.json(fileDetails);
+    return res.json({
+      video,
+    });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      message: 'Something went wrong',
+    });
   }
 };
 
-module.exports = sendAllVideos;
+module.exports = getVideo;
