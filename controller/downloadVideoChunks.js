@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ffmpeg = require('ffmpeg');
 const videoModel = require('../models/videoInfo');
 const fs = require('fs');
 const { saveToDb, getFileById } = require('../dB/dBOperations');
@@ -16,12 +17,13 @@ const downloadVideo = async (req, res) => {
     return console.log('Invalid Id');
   }
 
-  const video = videoModel.findById({ _id: videoId });
+  const video = await videoModel.findById({ _id: videoId });
   if (!video) {
     return console.log('File not found');
   }
 
-  await video.set({ mimeType });
+  video.set({ mimeType: mimeType });
+  await video.save();
 
   const chunks = [];
   req.on('data', (chunk) => {
@@ -34,7 +36,9 @@ const downloadVideo = async (req, res) => {
 
     await saveToDb(dataBuffer, videoId);
   });
-  return;
+  return res.json({
+    message: 'Chunks of data recieved',
+  });
 };
 
 const finalVideoChunk = async (req, res) => {
@@ -44,7 +48,7 @@ const finalVideoChunk = async (req, res) => {
 
   try {
     const videoId = req.params.id;
-    const mimeType = req.headers['content-type'];
+    // const mimeType = req.headers['content-type'];
 
     if (!mongoose.Types.ObjectId.isValid(videoId)) {
       return console.log('Invalid Id');
@@ -67,9 +71,21 @@ const finalVideoChunk = async (req, res) => {
       await saveToDb(dataBuffer, videoId);
     });
 
-    await getFileById(videoId);
+    const conctBuffer = await getFileById(videoId);
+    const buffer = Buffer.concat(conctBuffer);
 
-    return;
+    const command = await ffmpeg()
+      .input(buffer)
+      .output(videoData.mimeType)
+      .run();
+
+    return fs.readFileSync('../videos');
+    // Set output format and path.
+    // command.toFormat(videoData.mimeType).save('../videos');
+
+    return res.json({
+      message: 'Video saved',
+    });
     const data = await videoModel.findById({ _id: videoId });
 
     if (!data) {

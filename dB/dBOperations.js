@@ -53,13 +53,12 @@ const getFileById = async (fileId) => {
 
   const extractedBuffArr = [];
   for (const singleBuff of parsedFile) {
-    if (singleBuff.hasOwnProperty('data') && Array.isArray(singleBuff.data)) {
-      extractedBuffArr.push.apply(extractedBuffArr, singleBuff.data);
-      // extractedBuffArr.push(...singleBuff.data);
+    for (const eachData of singleBuff.data) {
+      extractedBuffArr.push(eachData);
     }
   }
 
-  console.log(extractedBuffArr);
+  return extractedBuffArr;
 
   // for (const item of currentData) {
   //   if (item === `${fileId}.json`) {
