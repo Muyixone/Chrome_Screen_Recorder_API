@@ -6,10 +6,10 @@ function getFile(fileName, callback) {
 }
 
 function streamVideoFile(req, res, videoFile) {
-  const videoPath = `${process.env.FILE_UPLOAD_PATH}/${req.params.videoName}`;
+  const videoPath = `${process.env.FILE_UPLOAD_PATH}/${req.params.videoId}`;
   const total = videoFile.length;
   let range = req.headers.range;
-  // console.log(range)
+
   if (range) {
     let positions = range.replace(/bytes=/, '').split('-');
     let start = parseInt(positions[0], 10);
@@ -19,20 +19,20 @@ function streamVideoFile(req, res, videoFile) {
       'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
       'Accept-Ranges': 'bytes',
       'Content-Length': chunksize,
-      'Content-Type': 'video/mp4',
+      'Content-Type': 'video/webm',
     });
     res.end(videoFile.slice(start, end + 1), 'binary');
   } else {
     res.writeHead(200, {
       'Content-Length': total,
-      'Content-Type': 'video/mp4',
+      'Content-Type': 'video/webm',
     });
     fs.createReadStream(videoPath).pipe(res);
   }
 }
 
 const streamVideo = (req, res) => {
-  const videoName = req.params.videoName;
+  const videoName = req.params.videoId;
 
   function handleFile(error, fileData) {
     if (error) {
@@ -47,26 +47,5 @@ const streamVideo = (req, res) => {
   }
   getFile(videoName, handleFile);
 };
-
-// const streamVideo = (req, res) => {
-//   const videoPath = `${process.env.FILE_UPLOAD_PATH}/${req.params.videoName}`;
-
-//   // Check if the video file exists.
-//   if (!fs.existsSync(videoPath)) {
-//     return res.status(404).json({ error: 'Video not found' });
-//   }
-
-//   const videoStream = fs.createReadStream(videoPath);
-
-//   // Set the appropriate headers for video streaming.
-//   res.setHeader('Content-Type', 'video/mp4');
-//   res.setHeader(
-//     'Content-Disposition',
-//     `inline; filename="${req.params.videoName}"`
-//   );
-
-//   // Pipe the video stream to the response.
-//   videoStream.pipe(res);
-// };
 
 module.exports = streamVideo;
