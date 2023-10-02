@@ -4,11 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const { saveToDb, getFileById } = require('../dB/dBOperations');
 
-const videoStoragePath = path.resolve(__dirname, '../', 'videos');
-
 const downloadVideo = async (req, res) => {
   const videoId = req.params.id;
   const mimeType = req.headers['content-type'];
+  console.log(mimeType);
 
   if (!mongoose.Types.ObjectId.isValid(videoId)) {
     return console.log('Invalid Id');
@@ -19,7 +18,8 @@ const downloadVideo = async (req, res) => {
     return console.log('File not found');
   }
 
-  video.set({ mimeType: mimeType });
+  // Set the filetype in the data base to a specific video format
+  video.set('mimeType', 'video/webm');
   await video.save();
 
   const chunks = [];
@@ -39,10 +39,6 @@ const downloadVideo = async (req, res) => {
 };
 
 const finalVideoChunk = async (req, res) => {
-  //1. get the videoId, blob from the req.body
-  //2. Check if the request body has the isComplete field set to true
-  //3. If No, return an error message that this is the wrong route else, continue
-
   try {
     const videoId = req.params.id;
     // const mimeType = req.headers['content-type'];
@@ -51,7 +47,7 @@ const finalVideoChunk = async (req, res) => {
       return console.log('Invalid Id');
     }
 
-    const videoData = videoModel.findById({ _id: videoId });
+    const videoData = await videoModel.findById({ _id: videoId });
     if (!videoData) {
       return console.log('File not found');
     }
@@ -75,10 +71,19 @@ const finalVideoChunk = async (req, res) => {
 
     if (Buffer.isBuffer(videoBuffer)) {
       // The Buffer is converted back to a videofile and saved to the saver
-      fs.writeFile(`./videos/${videoId}.webm`, videoBuffer, (err) => {
+      fs.writeFile(`./videos/${videoId}.webm`, videoBuffer, async (err) => {
         if (err) {
-          console.error(`Error writing video file: ${err}`);
+          return res.json({ message: err });
         } else {
+          const link = `http://${req.hostname}:${process.env.PORT}/video/${videoId}.webm`;
+
+          // update the url and blob fields in the mongoose model
+          videoData.set({
+            url: link,
+            // blob: videoBuffer,
+          });
+          await videoData.save();
+
           return res.json({
             message: 'Video saved',
             status: 200,
@@ -90,7 +95,11 @@ const finalVideoChunk = async (req, res) => {
         message: 'Buffer not valid',
       });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong',
+    });
+  }
 };
 
 module.exports = { downloadVideo, finalVideoChunk };
