@@ -9,13 +9,17 @@ const downloadVideo = async (req, res) => {
   // const mimeType = req.headers['content-type'];
 
   if (!mongoose.Types.ObjectId.isValid(videoId)) {
-    return console.log('Invalid Id');
+    return res.status(400).json({
+      message: 'Not a valid mongoose id',
+    });
   }
 
   try {
     const video = await videoModel.findById({ _id: videoId });
     if (!video) {
-      return console.log('File not found');
+      return res.status(404).json({
+        message: 'File not found',
+      });
     }
 
     // Set the filetype in the data base to a specific video format
@@ -107,7 +111,7 @@ const finalVideoChunk = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({
-      message: error,
+      message: 'Something went wrong',
     });
   }
 };

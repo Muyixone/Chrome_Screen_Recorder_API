@@ -13,12 +13,6 @@ const app = express();
 
 const PORT = process.env.PORT;
 
-// const upload = multer(fileUploadConfig);
-
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname + '/public/upload.html'));
-// });
-
 app.use(
   cors({
     origin: '*',

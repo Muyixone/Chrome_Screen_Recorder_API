@@ -1,0 +1,51 @@
+openapi: '3.0.3'
+info:
+  title: Chrome Screen Recorder AAPI
+  version: '1.0'
+  description: |-
+    ** This is the documentation for the API of a Chrome screen Recording extension
+  contact:
+    name: Osamuyi
+    email: muyi.alarezomo@gmail.com
+
+servers:
+  - url: http://localhost:3500
+    description: development
+  - url: https://pear-uninterested-caterpillar.cyclic.cloud
+    description: production
+
+paths:
+  /start-record:
+    post:
+      summary: Returns the videoId to the user
+      description: The video model is created in the database, and the Id is returned to the frontend, where the id will be used to identify subsequent request to the server
+      responses:
+        '200':
+          description: A JSON object containing the newly created videId is sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videoId:
+                    type: object
+                    format: mongooseString
+                    example: '651b2dbf5db65907cbfa09a0'
+                  status:
+                    type: integer
+                    example: 200
+
+        '500':
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: object
+                    format: string
+                    example: 'Something went wrong'
+
+  /video-chunks/{id}:
+    post:
